@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Movie Event Registration</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #eeeeee;
+            margin: 0;
+            padding: 30px;
+        }
+
+        .container {
+            width: 400px;
+            margin: auto;
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px gray;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333333;
+        }
+
+        p {
+            text-align: center;
+            color: #666666;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            background-color: #333333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #555555;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Movie Event Registration</h1>
+
+        <p>Register for our movie event</p>
+
+        <form id="registrationForm">
+
+            <label>Full Name</label>
+            <input type="text" id="name" placeholder="Enter your full name" required>
+
+            <label>Email Address</label>
+            <input type="email" id="email" placeholder="Enter your email" required>
+
+            <label>Choose Movie</label>
+            <select id="movie" required>
+                <option value="">-- Select Movie --</option>
+                <option value="Avengers">Avengers</option>
+                <option value="Spider-Man">Spider-Man</option>
+                <option value="The Batman">The Batman</option>
+            </select>
+
+            <div id="movieInfo">
+                 <h3>Movie Information</h3>
+                 <p id="apiResult">Select a movie to see information.</p>
+            </div>
+
+            <label>Event Date</label>
+            <input type="date" id="date" required>
+
+            <label>Number of Tickets</label>
+            <input type="number" id="tickets" min="1" max="10" value="1" required>
+
+            <button type="submit">Confirm Registration</button>
+
+        </form>
+
+    </div>
+    <!-- Movie API JavaScript -->
+     <script>
+
+    const apiKey = "5ef3bab8";
+    const scriptURL = "https://script.google.com/macros/s/AKfycbyNz3aqc5h_VPWM1nHUp1rZ50GmkujmfCwtoR9TCARmeUcKHBgo4tEkp1SBBOUOjVm-/exec";
+
+    document.getElementById("registrationForm").addEventListener("submit", function(event) {
+
+    event.preventDefault();
+
+    let name = document.getElementById("name").value;
+    let email = document.getElementById("email").value;
+    let movie = document.getElementById("movie").value;
+    let date = document.getElementById("date").value;
+    let tickets = document.getElementById("tickets").value;
+
+    let formData = {
+        name: name,
+        email: email,
+        movie: movie,
+        date: date,
+        tickets: tickets
+    };
+
+    alert("Sending registration...");
+
+    fetch(scriptURL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+            "Content-Type": "text/plain"
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(function() {
+
+        alert("Registration successful! Please check your email.");
+
+        document.getElementById("registrationForm").reset();
+
+    })
+    .catch(function(error) {
+
+        console.log(error);
+
+        alert("Something went wrong.");
+
+    });
+
+});
+
+    document.getElementById("movie").addEventListener("change", function() {
+
+        let movieName = this.value;
+
+        if (movieName == "") {
+            document.getElementById("apiResult").innerHTML =
+                "Select a movie to see information.";
+            return;
+        }
+
+        let apiUrl =
+            "https://www.omdbapi.com/?apikey=" +
+            apiKey +
+            "&t=" +
+            encodeURIComponent(movieName);
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+
+                if (data.Response == "True") {
+
+                    document.getElementById("apiResult").innerHTML =
+                        "Title: " + data.Title +
+                        "<br>Year: " + data.Year +
+                        "<br>Genre: " + data.Genre +
+                        "<br>Rating: " + data.imdbRating;
+
+                } else {
+
+                    document.getElementById("apiResult").innerHTML =
+                        "Movie information not found.";
+
+                }
+
+            })
+            .catch(error => {
+
+                document.getElementById("apiResult").innerHTML =
+                    "Error loading movie information.";
+
+                console.log(error);
+
+            });
+
+    });
+
+     </script>
+
+</body>
+</html>
